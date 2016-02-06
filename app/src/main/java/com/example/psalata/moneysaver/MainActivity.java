@@ -11,6 +11,7 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity{
     public final static String EXTRA_MESSAGE = "com.example.psalata.moneysaver.MESSAGE";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
