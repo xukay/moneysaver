@@ -20,8 +20,9 @@ public class MainActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.incomes_title_bar));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.outcomes_title_bar));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.incomes_title_bar));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_settings));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);

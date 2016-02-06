@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">MoneySaver</string>
-    <string name="action_settings">Settings</string>
-    <string name="edit_message">Enter a message</string>
-    <string name="button_send">Send</string>
-    <string name="title_activity_display_message">My Message</string>
-    <string name="zl_prefix"> zł</string>
+    <string name="button_add">Dodaj</string>
+
     <string name="incomes_title_bar">Przychody</string>
     <string name="outcomes_title_bar">Wydatki</string>
+    <string name="settings_title_bar">Ustawienia</string>
+
+    <string name="amount_field_hint">Kwota</string>
+
+    <string name="add_outcome">Dodaj wydatek:</string>
+    <string name="add_income">Dodaj przychód:</string>
+
+    <string name="zl_prefix"> zł</string>
 </resources>
