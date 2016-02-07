@@ -2,14 +2,15 @@
     <string name="app_name">MoneySaver</string>
     <string name="button_add">Dodaj</string>
 
+    <string name="history_activity_title">Historia</string>
     <string name="incomes_title_bar">Przychody</string>
     <string name="outcomes_title_bar">Wydatki</string>
     <string name="settings_title_bar">Ustawienia</string>
 
     <string name="amount_field_hint">Kwota</string>
-
     <string name="add_outcome">Dodaj wydatek:</string>
     <string name="add_income">Dodaj przychód:</string>
+    <string name="amount_remaining">Pozostała kwota: </string>
 
     <string name="zl_prefix"> zł</string>
 </resources>

@@ -3,13 +3,15 @@ package com.example.psalata.moneysaver.outcomes;
 /**
  * Created by Paweł on 2016-02-04.
  */
-public abstract class Outcome {
+public abstract class AbstractOutcome {
     private double amount;
     private String date;
+    private String category;
 
-    public Outcome(double amount, String date) {
+    public AbstractOutcome(double amount, String date, String category) {
         this.amount = amount;
         this.date = date;
+        this.category = category;
     }
 
 
@@ -20,4 +22,9 @@ public abstract class Outcome {
     public String getDate() {
         return date;
     }
+
+    public String getCategory() {
+        return category;
+    }
+
 }
