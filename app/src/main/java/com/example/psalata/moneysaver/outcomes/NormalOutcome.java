@@ -6,6 +6,6 @@ package com.example.psalata.moneysaver.outcomes;
 public class NormalOutcome extends AbstractOutcome {
 
     public NormalOutcome(double amount, String date, String category) {
-        super(amount, date, category);
+        super(amount, date, category, false);
     }
 }

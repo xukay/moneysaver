@@ -9,9 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
+import com.example.psalata.moneysaver.database.DBHelper;
+
 public class MainActivity extends AppCompatActivity{
     public final static String EXTRA_MESSAGE = "com.example.psalata.moneysaver.MESSAGE";
-
+    DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +25,8 @@ public class MainActivity extends AppCompatActivity{
             getSupportActionBar().hide();
         }
 
+        db = new DBHelper(getApplicationContext());
+        db.editAmountRemaining(8051.00);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText(R.string.outcomes_title_bar));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.incomes_title_bar));

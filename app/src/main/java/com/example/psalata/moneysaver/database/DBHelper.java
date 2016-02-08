@@ -1,8 +1,13 @@
 package com.example.psalata.moneysaver.database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import com.example.psalata.moneysaver.outcomes.AbstractOutcome;
 
 /**
  * Created by Paweł on 07.02.2016.
@@ -76,7 +81,52 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    
+    public long editAmountRemaining(Double amountRemaining) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String count = "SELECT * FROM TABLE_AMOUNT_REMAINING";
+        Cursor mCursor = db.rawQuery(count, null);
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_AMOUNT, amountRemaining);
+        if(!mCursor.moveToFirst()) {
+            return db.insert(TABLE_AMOUNT_REMAINING, null, values);
+        } else {
+            Log.d("DB addAmountRemaining", "amountRemaining already exists," +
+                    " so the value is updating");
+            return db.update(TABLE_AMOUNT_REMAINING, values, "KEY_ID"+0, null);
+        }
+    }
+
+    private long substractOutcomeFromAmountRemaining(Double outcomeAmount) {
+        Double amountRemaining = getAmountRemaining();
+        amountRemaining -= outcomeAmount;
+        return editAmountRemaining(amountRemaining);
+    }
+
+    public Double getAmountRemaining() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT * FROM TABLE_AMOUNT_REMAINING";
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        String amountRemainingLabel = "";
+        if(mCursor != null && mCursor.moveToFirst()) {
+            amountRemainingLabel = mCursor.getString(mCursor.getColumnIndex("KEY_ID"));
+        }
+        return Double.parseDouble(amountRemainingLabel);
+    }
+
+    public long addOutcome(AbstractOutcome outcome) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_DATE, outcome.getDate());
+        values.put(KEY_AMOUNT, outcome.getAmount());
+        values.put(KEY_CATEGORY, outcome.getCategory());
+        values.put(KEY_MONTHLY, outcome.getIsMonthly());
+
+        substractOutcomeFromAmountRemaining(outcome.getAmount());
+        return db.insert(TABLE_OUTCOMES, null, values);
+    }
 
 
     private static String createAmountRemainingTable() {
