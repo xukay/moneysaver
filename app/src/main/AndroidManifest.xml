@@ -27,7 +27,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.psalata.moneysaver.MainActivity" />
         </activity>
-
+        <activity
+            android:name=".FirstRunActivity"
+            android:label="@string/title_activity_first_run"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>
