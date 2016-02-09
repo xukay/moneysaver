@@ -70,20 +70,20 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_AMOUNT_REMAINING);
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_OUTCOMES);
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_INCOMES);
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_CATEGORIES_OUTCOMES);
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_CATEGORIES_INCOMES);
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_CATEGORIES_MONTHLY_OUTCOMES);
-        db.execSQL("DROP TABLE IF EXISTS" + CREATE_TABLE_CATEGORIES_MONTHLY_INCOMES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_AMOUNT_REMAINING);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_OUTCOMES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_INCOMES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_CATEGORIES_OUTCOMES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_CATEGORIES_INCOMES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_CATEGORIES_MONTHLY_OUTCOMES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_CATEGORIES_MONTHLY_INCOMES);
 
         onCreate(db);
     }
 
     public long editAmountRemaining(Double amountRemaining) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String count = "SELECT * FROM TABLE_AMOUNT_REMAINING";
+        String count = "SELECT * FROM amount_remaining";
         Cursor mCursor = db.rawQuery(count, null);
 
         ContentValues values = new ContentValues();
@@ -93,7 +93,7 @@ public class DBHelper extends SQLiteOpenHelper {
         } else {
             Log.d("DB addAmountRemaining", "amountRemaining already exists," +
                     " so the value is updating");
-            return db.update(TABLE_AMOUNT_REMAINING, values, "KEY_ID"+0, null);
+            return db.update(TABLE_AMOUNT_REMAINING, values, "id="+0, null);
         }
     }
 
@@ -105,7 +105,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Double getAmountRemaining() {
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT * FROM TABLE_AMOUNT_REMAINING";
+        String selectQuery = "SELECT * FROM amount_remaining";
         Cursor mCursor = db.rawQuery(selectQuery, null);
 
         String amountRemainingLabel = "";
