@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/outcome_fragment_tab"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:padding="6dp"
+    android:padding="16dp"
     android:layout_below="@id/pager">
 
     <TextView android:id="@+id/add_outcome_text_view"
@@ -13,7 +14,7 @@
         android:layout_height="wrap_content"
         />
 
-    <EditText android:id="@+id/regular_outcome_edit"
+    <EditText android:id="@+id/outcome_edit"
         android:layout_width="100dp"
         android:layout_height="30dp"
         android:layout_below="@id/add_outcome_text_view"
@@ -23,14 +24,24 @@
         android:hint="@string/amount_field_hint"
         android:background="@drawable/back_with_borders"/>
 
-    <Button android:id="@+id/regular_outcome_button"
+    <Spinner android:id="@+id/spinner_outcome_category"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:background="@drawable/back_with_borders"
+        android:layout_marginLeft="10dp"
+        android:spinnerMode="dropdown"
+        android:layout_toRightOf="@id/outcome_edit"
+        android:layout_toEndOf="@id/outcome_edit"
+        android:layout_below="@id/add_outcome_text_view"
+        android:prompt="@string/category_spinner_title"/>
+
+    <Button android:id="@+id/outcome_button"
         android:layout_width="wrap_content"
-        android:layout_height="35dp"
+        android:layout_height="40dp"
         android:padding="2dp"
         android:layout_below="@id/add_outcome_text_view"
-        android:layout_toRightOf="@id/regular_outcome_edit"
-        android:layout_toEndOf="@id/add_outcome_text_view"
-        android:layout_alignBaseline="@id/regular_outcome_edit"
+        android:layout_alignParentRight="true"
+        android:layout_alignBaseline="@id/outcome_edit"
         android:text="@string/button_add"
         android:onClick="onClick"/>
 

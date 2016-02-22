@@ -1,13 +1,15 @@
 package com.example.psalata.moneysaver;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.EditText;
 
-public class FirstRunActivity extends AppCompatActivity {
+import com.example.psalata.moneysaver.database.DBHelper;
+
+public class FirstRunActivity extends AppCompatActivity{
+    DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,7 +18,24 @@ public class FirstRunActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        db = new DBHelper(getApplicationContext());
     }
 
+//    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.beginning_amount_button:
+                addBeginningAmount(v);
+                break;
+        }
+    }
+
+    private void addBeginningAmount(View view) {
+        EditText beginningAmountEditText = (EditText) findViewById(R.id.beginning_amount_edit);
+        String beginningAmountString = beginningAmountEditText.getText().toString();
+        Double beginningAmount = Double.parseDouble(beginningAmountString);
+        db.addAmountRemaining(beginningAmount);
+
+        finish();//stops the activity after saving beginning amount
+    }
 }

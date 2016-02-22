@@ -1,5 +1,7 @@
 package com.example.psalata.moneysaver;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -12,8 +14,7 @@ import android.view.Window;
 import com.example.psalata.moneysaver.database.DBHelper;
 
 public class MainActivity extends AppCompatActivity{
-    public final static String EXTRA_MESSAGE = "com.example.psalata.moneysaver.MESSAGE";
-    DBHelper db;
+    SharedPreferences prefs = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +26,7 @@ public class MainActivity extends AppCompatActivity{
             getSupportActionBar().hide();
         }
 
-        db = new DBHelper(getApplicationContext());
-        db.editAmountRemaining(8051.00);
+        prefs = getSharedPreferences("com.example.psalata.moneysaver", MODE_PRIVATE);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText(R.string.outcomes_title_bar));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.incomes_title_bar));
@@ -56,6 +56,17 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if(prefs.getBoolean("firstrun", true)){
+            Intent intent = new Intent(this, FirstRunActivity.class);
+            startActivity(intent);
+            prefs.edit().putBoolean("firstrun", false).commit();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -69,4 +80,5 @@ public class MainActivity extends AppCompatActivity{
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

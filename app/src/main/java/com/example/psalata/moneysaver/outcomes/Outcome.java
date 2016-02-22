@@ -1,23 +1,20 @@
 package com.example.psalata.moneysaver.outcomes;
 
 /**
- * Created by Paweł on 2016-02-04.
+ * Created by Paweł on 06.02.2016.
  */
-public abstract class AbstractOutcome {
+public class Outcome {
     private Double amount;
     private String date;
     private String category;
-    private Boolean isMonthly;
 
-    public AbstractOutcome(double amount, String date, String category, Boolean isMonthly) {
+    Outcome(double amount, String date, String category) {
         this.amount = amount;
         this.date = date;
         this.category = category;
-        this.isMonthly = isMonthly;
     }
 
-
-    public double getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
@@ -27,9 +24,5 @@ public abstract class AbstractOutcome {
 
     public String getCategory() {
         return category;
-    }
-
-    public Boolean getIsMonthly() {
-        return isMonthly;
     }
 }

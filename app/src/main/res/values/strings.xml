@@ -7,11 +7,14 @@
     <string name="outcomes_title_bar">Wydatki</string>
     <string name="settings_title_bar">Ustawienia</string>
 
+    <string name="category_spinner_title">Wybierz kategorię</string>
     <string name="amount_field_hint">Kwota</string>
     <string name="add_outcome">Dodaj wydatek:</string>
     <string name="add_income">Dodaj przychód:</string>
     <string name="add_beginning_amount">Dodaj kwotę początkową:</string>
     <string name="amount_remaining">Pozostała kwota: </string>
+
+    <string name="no_amount_remaining_in_db">Nie podano</string>
 
     <string name="zl_prefix"> zł</string>
     <string name="title_activity_first_run">FirstRunActivity</string>
