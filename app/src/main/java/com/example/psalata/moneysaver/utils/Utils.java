@@ -12,8 +12,8 @@ import java.util.Locale;
  * Created by Paweł on 13.02.2016.
  */
 public class Utils {
-    public String getCurrentDate() {
-        return new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date());
+    public String getCurrentDate(){
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 
 }

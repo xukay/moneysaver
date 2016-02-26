@@ -36,6 +36,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         db = new DBHelper(getActivity().getApplicationContext());
+        utils = new Utils();
         View view = inflater.inflate(R.layout.outcome_fragment_tab, container, false);
 
         outcomeEditText = (EditText) view.findViewById(R.id.outcome_edit);
@@ -57,6 +58,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             case R.id.outcome_button:
                 addNormalOutcome();
                 break;
+            case R.id.
         }
     }
 
@@ -68,7 +70,6 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-
     }
 
     private ArrayAdapter<String> createSpinnerWithCategories() {
