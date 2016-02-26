@@ -1,7 +1,9 @@
 package com.example.psalata.moneysaver.outcomes;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,10 +14,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.psalata.moneysaver.MainActivity;
 import com.example.psalata.moneysaver.R;
 import com.example.psalata.moneysaver.database.DBHelper;
 import com.example.psalata.moneysaver.utils.Utils;
@@ -58,24 +62,65 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             case R.id.outcome_button:
                 addNormalOutcome();
                 break;
-            case R.id.
         }
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         String item = adapterView.getItemAtPosition(position).toString();
-        Toast.makeText(adapterView.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+
+        if(item.equals(this.getString(R.string.add_new_category))) {
+            displayAddCategoryDialogAndSaveToDB();
+            categorySpinner.setAdapter(createSpinnerWithCategories());
+        }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
     }
 
+    private void displayAddCategoryDialogAndSaveToDB() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
+        dialog.setTitle(this.getString(R.string.add_new_category));
+        dialog.setMessage("");
+
+        final EditText editText = new EditText(getContext());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        editText.setLayoutParams(lp);
+        dialog.setView(editText);
+
+        dialog.setPositiveButton(getResources().getString(R.string.button_add),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String category = editText.getText().toString();
+                        if(category != null && !category.equals("")) {
+                            Toast.makeText(getContext(),
+                                    getResources().getString(R.string.new_cateogry_added),
+                                    Toast.LENGTH_SHORT).show();
+                            db.addOutcomeCategory(category);
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(getContext(),
+                                    getResources().getString(R.string.catggory_not_added),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        dialog.setNegativeButton(getResources().getString(R.string.cancel),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+    }
+
     private ArrayAdapter<String> createSpinnerWithCategories() {
         List<String> categories = db.getOutcomeCategories();
-        categories.add("DUPA");
-        categories.add("GOWNO");
+        categories.add(this.getString(R.string.add_new_category));
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>
                 (getActivity(), android.R.layout.simple_spinner_item, categories);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

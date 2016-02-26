@@ -131,6 +131,14 @@ public class DBHelper extends SQLiteOpenHelper{
         return db.insert(TABLE_OUTCOMES, null, values);
     }
 
+    public long addOutcomeCategory(String category) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_CATEGORY_NAME, category);
+        return db.insert(TABLE_CATEGORIES_OUTCOMES, null, values);
+    }
+
     public List<String> getOutcomeCategories() {
         List<String> categories = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + TABLE_CATEGORIES_OUTCOMES;
