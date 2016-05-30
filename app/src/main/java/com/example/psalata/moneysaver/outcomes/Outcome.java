@@ -1,20 +1,22 @@
 package com.example.psalata.moneysaver.outcomes;
 
+import java.math.BigDecimal;
+
 /**
  * Created by Paweł on 06.02.2016.
  */
 public class Outcome {
-    private Double amount;
+    private BigDecimal amount;
     private String date;
     private String category;
 
-    Outcome(double amount, String date, String category) {
+    Outcome(BigDecimal amount, String date, String category) {
         this.amount = amount;
         this.date = date;
         this.category = category;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 

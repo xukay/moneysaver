@@ -4,6 +4,7 @@ package com.example.psalata.moneysaver.outcomes;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -16,20 +17,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.psalata.moneysaver.MainActivity;
 import com.example.psalata.moneysaver.R;
 import com.example.psalata.moneysaver.database.DBHelper;
+import com.example.psalata.moneysaver.history.HistoryActivity;
 import com.example.psalata.moneysaver.utils.Utils;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 
 
-public class OutcomeFragmentTab extends Fragment implements View.OnClickListener,
-        AdapterView.OnItemSelectedListener{
+public class OutcomeFragmentTab extends Fragment implements View.OnClickListener{
     DBHelper db;
     EditText outcomeEditText;
     TextView amountRemainingTextView;
@@ -48,7 +53,20 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
         categorySpinner = (Spinner) view.findViewById(R.id.spinner_outcome_category);
         Button regularOutcomeButton = (Button) view.findViewById(R.id.outcome_button);
         regularOutcomeButton.setOnClickListener(this);
-        categorySpinner.setOnItemSelectedListener(this);
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                String item = categorySpinner.getSelectedItem().toString();
+
+                if(item.equals(getActivity().getString(R.string.add_new_category))) {
+                    displayAddCategoryDialogAndSaveToDB();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
         categorySpinner.setAdapter(createSpinnerWithCategories());
 
         amountRemainingTextView.setText(db.getAmountRemainingAsString());
@@ -62,22 +80,14 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             case R.id.outcome_button:
                 addNormalOutcome();
                 break;
+            case R.id.history_button:
+                Intent intent = new Intent(getActivity(), HistoryActivity.class);
+                getActivity().startActivity(intent);
+                break;
         }
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-        String item = adapterView.getItemAtPosition(position).toString();
 
-        if(item.equals(this.getString(R.string.add_new_category))) {
-            displayAddCategoryDialogAndSaveToDB();
-            categorySpinner.setAdapter(createSpinnerWithCategories());
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-    }
 
     private void displayAddCategoryDialogAndSaveToDB() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
@@ -95,11 +105,12 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String category = editText.getText().toString();
-                        if(category != null && !category.equals("")) {
+                        if (!category.equals("")) {
                             Toast.makeText(getContext(),
                                     getResources().getString(R.string.new_cateogry_added),
                                     Toast.LENGTH_SHORT).show();
                             db.addOutcomeCategory(category);
+                            categorySpinner.setAdapter(createSpinnerWithCategories());
                             dialog.dismiss();
                         } else {
                             Toast.makeText(getContext(),
@@ -113,12 +124,14 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
+                        dialog.dismiss();
                     }
                 });
+
+        dialog.show();
     }
 
-    private ArrayAdapter<String> createSpinnerWithCategories() {
+    private SpinnerAdapter createSpinnerWithCategories() {
         List<String> categories = db.getOutcomeCategories();
         categories.add(this.getString(R.string.add_new_category));
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>
@@ -135,7 +148,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
         String stringAmount = outcomeEditText.getText().toString();
-        Double amount = Double.parseDouble(stringAmount);
+        BigDecimal amount = new BigDecimal(stringAmount);
         String date = utils.getCurrentDate();
         String category = categorySpinner.getSelectedItem().toString();
         Outcome outcome = new Outcome(amount, date, category);

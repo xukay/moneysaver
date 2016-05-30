@@ -8,6 +8,8 @@ import android.widget.EditText;
 
 import com.example.psalata.moneysaver.database.DBHelper;
 
+import java.math.BigDecimal;
+
 public class FirstRunActivity extends AppCompatActivity{
     DBHelper db;
 
@@ -33,7 +35,7 @@ public class FirstRunActivity extends AppCompatActivity{
     private void addBeginningAmount(View view) {
         EditText beginningAmountEditText = (EditText) findViewById(R.id.beginning_amount_edit);
         String beginningAmountString = beginningAmountEditText.getText().toString();
-        Double beginningAmount = Double.parseDouble(beginningAmountString);
+        BigDecimal beginningAmount = new BigDecimal(beginningAmountString);
         db.addAmountRemaining(beginningAmount);
 
         finish();//stops the activity after saving beginning amount

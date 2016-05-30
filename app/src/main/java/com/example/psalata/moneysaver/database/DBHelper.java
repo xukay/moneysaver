@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.example.psalata.moneysaver.outcomes.Outcome;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,25 +76,25 @@ public class DBHelper extends SQLiteOpenHelper{
         onCreate(db);
     }
 
-    public long addAmountRemaining(Double amountRemaining) {
+    public long addAmountRemaining(BigDecimal amountRemaining) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_AMOUNT, amountRemaining);
+        values.put(KEY_AMOUNT, amountRemaining.toString());
         return db.insert(TABLE_AMOUNT_REMAINING, null, values);
     }
 
-    private long editAmountRemaining(Double amountRemaining) {
+    private long editAmountRemaining(BigDecimal amountRemaining) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_AMOUNT, amountRemaining);
+        values.put(KEY_AMOUNT, amountRemaining.toString());
         return db.update(TABLE_AMOUNT_REMAINING, values, null, null);
     }
 
-    private long subtractOutcomeFromAmountRemaining(Double outcomeAmount) {
-        Double amountRemaining = getAmountRemaining();
-        amountRemaining -= outcomeAmount;
+    private long subtractOutcomeFromAmountRemaining(BigDecimal outcomeAmount) {
+        BigDecimal amountRemaining = getAmountRemaining();
+        amountRemaining = amountRemaining.subtract(outcomeAmount);
         return editAmountRemaining(amountRemaining);
     }
 
@@ -111,10 +112,10 @@ public class DBHelper extends SQLiteOpenHelper{
         return null;
     }
 
-    public Double getAmountRemaining() {
+    public BigDecimal getAmountRemaining() {
         String amountRemainingString = getAmountRemainingAsString();
         if(amountRemainingString != null) {
-            return Double.parseDouble(amountRemainingString);
+            return new BigDecimal(amountRemainingString);
         }
         return null;
     }
@@ -124,7 +125,7 @@ public class DBHelper extends SQLiteOpenHelper{
 
         ContentValues values = new ContentValues();
         values.put(KEY_DATE, outcome.getDate());
-        values.put(KEY_AMOUNT, outcome.getAmount());
+        values.put(KEY_AMOUNT, outcome.getAmount().toString());
         values.put(KEY_CATEGORY, outcome.getCategory());
 
         subtractOutcomeFromAmountRemaining(outcome.getAmount());
@@ -152,6 +153,7 @@ public class DBHelper extends SQLiteOpenHelper{
                 categories.add(mCursor.getString((mCursor.getColumnIndex(KEY_CATEGORY_NAME))));
             }while(mCursor.moveToNext());
         }
+        mCursor.close();
         return categories;
     }
 
