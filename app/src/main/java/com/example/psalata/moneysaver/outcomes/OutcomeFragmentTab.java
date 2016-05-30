@@ -53,6 +53,8 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
         categorySpinner = (Spinner) view.findViewById(R.id.spinner_outcome_category);
         Button regularOutcomeButton = (Button) view.findViewById(R.id.outcome_button);
         regularOutcomeButton.setOnClickListener(this);
+        Button historyButton = (Button) view.findViewById(R.id.history_button);
+        historyButton.setOnClickListener(this);
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
