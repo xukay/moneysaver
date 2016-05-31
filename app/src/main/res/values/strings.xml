@@ -18,6 +18,10 @@
     <string name="add_beginning_amount">Dodaj kwotę początkową:</string>
     <string name="amount_remaining">Pozostała kwota: </string>
 
+    <string name="date">Data</string>
+    <string name="amount">Kwota</string>
+    <string name="category">Kategoria</string>
+
     <string name="no_amount_remaining_in_db">Nie podano</string>
 
     <string name="zl_prefix"> zł</string>

@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.psalata.moneysaver.MainActivity;
 import com.example.psalata.moneysaver.outcomes.Outcome;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,20 @@ import java.util.List;
  * Created by Paweł on 07.02.2016.
  */
 public class DBHelper extends SQLiteOpenHelper{
+
+    private static DBHelper mInstance = null;
+
+    public static DBHelper getInstance(Context activityContext) {
+        if(mInstance == null) {
+            mInstance = new DBHelper(activityContext.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private DBHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
     private static final String LOG = "DBHelper";
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME="MoneySaverDB";
@@ -50,10 +66,6 @@ public class DBHelper extends SQLiteOpenHelper{
     private static final String CREATE_TABLE_CATEGORIES_INCOMES =
             createCategoryTable(TABLE_CATEGORIES_INCOMES);
 
-
-    public DBHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -109,6 +121,7 @@ public class DBHelper extends SQLiteOpenHelper{
             return mCursor.getString(mCursor.getColumnIndex(KEY_AMOUNT));
 
         }
+        mCursor.close();
         return null;
     }
 
@@ -132,6 +145,27 @@ public class DBHelper extends SQLiteOpenHelper{
         return db.insert(TABLE_OUTCOMES, null, values);
     }
 
+    public List<Outcome> getOutcomes() {
+        List<Outcome> outcomes = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_OUTCOMES;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                String date = cursor.getString(cursor.getColumnIndex(KEY_DATE));
+                BigDecimal amount =
+                        new BigDecimal(cursor.getString(cursor.getColumnIndex(KEY_AMOUNT)));
+                String category = cursor.getString(cursor.getColumnIndex(KEY_CATEGORY));
+                outcomes.add(new Outcome(amount, date, category));
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        return outcomes;
+    }
+
     public long addOutcomeCategory(String category) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -150,7 +184,7 @@ public class DBHelper extends SQLiteOpenHelper{
         if(mCursor.getCount() > 0) {
             mCursor.moveToFirst();
             do {
-                categories.add(mCursor.getString((mCursor.getColumnIndex(KEY_CATEGORY_NAME))));
+                categories.add(mCursor.getString(mCursor.getColumnIndex(KEY_CATEGORY_NAME)));
             }while(mCursor.moveToNext());
         }
         mCursor.close();

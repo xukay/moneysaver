@@ -20,7 +20,7 @@ public class FirstRunActivity extends AppCompatActivity{
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        db = new DBHelper(getApplicationContext());
+        db = DBHelper.getInstance(getApplicationContext());
     }
 
 //    @Override

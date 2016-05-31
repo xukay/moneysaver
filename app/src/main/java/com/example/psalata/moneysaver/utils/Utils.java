@@ -13,7 +13,7 @@ import java.util.Locale;
  */
 public class Utils {
     public String getCurrentDate(){
-        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        return new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
     }
 
 }

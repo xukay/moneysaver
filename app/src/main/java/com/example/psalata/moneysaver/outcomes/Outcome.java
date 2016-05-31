@@ -10,7 +10,7 @@ public class Outcome {
     private String date;
     private String category;
 
-    Outcome(BigDecimal amount, String date, String category) {
+    public Outcome(BigDecimal amount, String date, String category) {
         this.amount = amount;
         this.date = date;
         this.category = category;

@@ -44,7 +44,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        db = new DBHelper(getActivity().getApplicationContext());
+        db = DBHelper.getInstance(getActivity());
         utils = new Utils();
         View view = inflater.inflate(R.layout.outcome_fragment_tab, container, false);
 
@@ -70,7 +70,6 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             }
         });
         categorySpinner.setAdapter(createSpinnerWithCategories());
-
         amountRemainingTextView.setText(db.getAmountRemainingAsString());
         return view;
     }
@@ -153,8 +152,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
         BigDecimal amount = new BigDecimal(stringAmount);
         String date = utils.getCurrentDate();
         String category = categorySpinner.getSelectedItem().toString();
-        Outcome outcome = new Outcome(amount, date, category);
-        db.addOutcome(outcome);
+        db.addOutcome(new Outcome(amount, date, category));
 
         outcomeEditText.getText().clear();
         amountRemainingTextView.setText(db.getAmountRemainingAsString());
