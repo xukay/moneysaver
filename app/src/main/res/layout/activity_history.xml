@@ -10,11 +10,12 @@
         android:padding="10dp"
         android:orientation="horizontal">
 
-            <TextView
+            <TextView android:id="@+id/history_date_filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/date"/>
+                android:text="@string/date"
+                android:onClick="onClick"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -28,10 +29,13 @@
                 android:layout_weight="1"
                 android:text="@string/category"/>
 
-            <TextView
+
+            <Button
+                android:layout_width="20dp"
+                android:layout_height="25dp"
                 android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:text="filter"
+                android:background="@android:color/holo_green_dark"/>
 
     </LinearLayout>
 

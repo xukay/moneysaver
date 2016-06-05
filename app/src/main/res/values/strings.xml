@@ -10,13 +10,18 @@
 
     <string name="category_spinner_title">Wybierz kategorię</string>
     <string name="add_new_category">Dodaj kategorię</string>
+    <string name="choose_category">Nie wybrano kategorii</string>
     <string name="new_cateogry_added">Dodano kategorię</string>
     <string name="catggory_not_added">Podaj nazwę</string>
     <string name="amount_field_hint">Kwota</string>
+    <string name="enter_amount">Nie podano kwoty</string>
     <string name="add_outcome">Dodaj wydatek:</string>
     <string name="add_income">Dodaj przychód:</string>
     <string name="add_beginning_amount">Dodaj kwotę początkową:</string>
     <string name="amount_remaining">Pozostała kwota: </string>
+
+    <string name="start_date">Data rozpoczęcia:</string>
+    <string name="end_date">Data zakończenia:</string>
 
     <string name="date">Data</string>
     <string name="amount">Kwota</string>

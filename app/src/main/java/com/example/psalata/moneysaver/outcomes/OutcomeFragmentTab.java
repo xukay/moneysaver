@@ -149,12 +149,21 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
         String stringAmount = outcomeEditText.getText().toString();
-        BigDecimal amount = new BigDecimal(stringAmount);
-        String date = utils.getCurrentDate();
         String category = categorySpinner.getSelectedItem().toString();
-        db.addOutcome(new Outcome(amount, date, category));
+        if(category.equals(getActivity().getString(R.string.add_new_category))) {
+            Toast.makeText(getContext(),
+                    getActivity().getString(R.string.choose_category), Toast.LENGTH_SHORT).show();
+        } else if(stringAmount.equals("") || (Double.parseDouble(stringAmount) < 0.01)) {
+            Toast.makeText(getContext(),
+                    getActivity().getString(R.string.enter_amount), Toast.LENGTH_SHORT).show();
+        } else {
+            BigDecimal amount = new BigDecimal(stringAmount);
+            String date = utils.getCurrentDate();
 
-        outcomeEditText.getText().clear();
-        amountRemainingTextView.setText(db.getAmountRemainingAsString());
+            db.addOutcome(new Outcome(amount, date, category));
+
+            outcomeEditText.getText().clear();
+            amountRemainingTextView.setText(db.getAmountRemainingAsString());
+        }
     }
 }
