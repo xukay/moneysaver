@@ -147,7 +147,30 @@ public class DBHelper extends SQLiteOpenHelper{
 
     public List<Outcome> getOutcomes() {
         List<Outcome> outcomes = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_OUTCOMES;
+        String selectQuery = "SELECT * FROM " + TABLE_OUTCOMES + " ORDER BY " + KEY_DATE + " DESC";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                String date = cursor.getString(cursor.getColumnIndex(KEY_DATE));
+                BigDecimal amount =
+                        new BigDecimal(cursor.getString(cursor.getColumnIndex(KEY_AMOUNT)));
+                String category = cursor.getString(cursor.getColumnIndex(KEY_CATEGORY));
+                outcomes.add(new Outcome(amount, date, category));
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        return outcomes;
+    }
+
+    public List<Outcome> getOutcomesWithDateRange(String startDate, String endDate) {
+        List<Outcome> outcomes = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_OUTCOMES + " WHERE " + KEY_DATE
+                + "  >= '" + startDate + "' AND " + KEY_DATE + " <= '" + endDate
+                + "' ORDER BY " + KEY_DATE + " DESC";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -190,6 +213,7 @@ public class DBHelper extends SQLiteOpenHelper{
         mCursor.close();
         return categories;
     }
+
 
 
     private static String createAmountRemainingTable() {

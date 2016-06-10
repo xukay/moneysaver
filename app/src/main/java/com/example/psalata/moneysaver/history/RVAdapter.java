@@ -8,8 +8,10 @@ import android.widget.TextView;
 
 import com.example.psalata.moneysaver.R;
 import com.example.psalata.moneysaver.outcomes.Outcome;
+import com.example.psalata.moneysaver.utils.Utils;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Created by Paweł on 31.05.2016.
@@ -47,8 +49,11 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.OutcomeViewHolder>
 
     @Override
     public void onBindViewHolder(OutcomeViewHolder holder, int position) {
-        holder.date.setText(outcomes.get(position).getDate());
-        holder.amount.setText(outcomes.get(position).getAmount().toString());
+        String displayDate = Utils.changeDateFormat(Utils.databaseDateFormat,
+                Utils.displayDateFormat, outcomes.get(position).getDate());
+        String displayAmount = outcomes.get(position).getAmount().toString();
+        holder.date.setText(displayDate);
+        holder.amount.setText(displayAmount);
         holder.category.setText(outcomes.get(position).getCategory());
     }
 

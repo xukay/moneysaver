@@ -39,13 +39,11 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
     EditText outcomeEditText;
     TextView amountRemainingTextView;
     Spinner categorySpinner;
-    Utils utils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         db = DBHelper.getInstance(getActivity());
-        utils = new Utils();
         View view = inflater.inflate(R.layout.outcome_fragment_tab, container, false);
 
         outcomeEditText = (EditText) view.findViewById(R.id.outcome_edit);
@@ -158,7 +156,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
                     getActivity().getString(R.string.enter_amount), Toast.LENGTH_SHORT).show();
         } else {
             BigDecimal amount = new BigDecimal(stringAmount);
-            String date = utils.getCurrentDate();
+            String date = Utils.getCurrentDate();
 
             db.addOutcome(new Outcome(amount, date, category));
 

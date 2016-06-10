@@ -3,37 +3,83 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/start_date"
-        android:layout_gravity="center"
-        android:layout_margin="15dp"
-        android:textSize="20sp"/>
 
-    <DatePicker
-        android:id="@+id/start_date_picker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:calendarViewShown="false"
-        android:datePickerMode="spinner"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/end_date"
-        android:layout_gravity="center"
-        android:layout_margin="15dp"
-        android:textSize="20sp"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
 
-    <DatePicker
-        android:id="@+id/end_date_picker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:calendarViewShown="false"
-        android:datePickerMode="spinner"/>
+            <CheckBox android:id="@+id/start_date_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/start_date"
+                android:layout_alignBaseline="@id/start_date_checkbox"
+                android:layout_toRightOf="@id/start_date_checkbox"
+                android:layout_toEndOf="@id/start_date_checkbox"
+                android:layout_marginBottom="15dp"
+                android:textSize="20sp"/>
+
+        </RelativeLayout>
+
+        <DatePicker
+            android:id="@+id/start_date_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:calendarViewShown="false"
+            android:datePickerMode="spinner"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <CheckBox android:id="@+id/end_date_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/end_date_checkbox"
+                android:layout_toRightOf="@id/end_date_checkbox"
+                android:layout_toEndOf="@id/end_date_checkbox"
+                android:text="@string/end_date"
+                android:layout_marginBottom="15dp"
+                android:textSize="20sp"/>
+
+        </RelativeLayout>
+
+        <DatePicker
+            android:id="@+id/end_date_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:calendarViewShown="false"
+            android:datePickerMode="spinner"/>
+
+    </LinearLayout>
 
 </LinearLayout>
