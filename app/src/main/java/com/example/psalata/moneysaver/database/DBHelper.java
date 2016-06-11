@@ -145,9 +145,10 @@ public class DBHelper extends SQLiteOpenHelper{
         return db.insert(TABLE_OUTCOMES, null, values);
     }
 
-    public List<Outcome> getOutcomes() {
+    public List<Outcome> getOutcomes(String startDate, String endDate) {
+
         List<Outcome> outcomes = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_OUTCOMES + " ORDER BY " + KEY_DATE + " DESC";
+        String selectQuery = getQueryForOutcomes(startDate, endDate);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -166,27 +167,23 @@ public class DBHelper extends SQLiteOpenHelper{
         return outcomes;
     }
 
-    public List<Outcome> getOutcomesWithDateRange(String startDate, String endDate) {
-        List<Outcome> outcomes = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_OUTCOMES + " WHERE " + KEY_DATE
-                + "  >= '" + startDate + "' AND " + KEY_DATE + " <= '" + endDate
-                + "' ORDER BY " + KEY_DATE + " DESC";
+    private String getQueryForOutcomes(String startDate, String endDate) {
+        final String queryPrefix = "SELECT * FROM " + TABLE_OUTCOMES + " WHERE ";
+        final String queryPostfix = " ORDER BY " + KEY_DATE + " DESC";
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        if(cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            do {
-                String date = cursor.getString(cursor.getColumnIndex(KEY_DATE));
-                BigDecimal amount =
-                        new BigDecimal(cursor.getString(cursor.getColumnIndex(KEY_AMOUNT)));
-                String category = cursor.getString(cursor.getColumnIndex(KEY_CATEGORY));
-                outcomes.add(new Outcome(amount, date, category));
-            }while (cursor.moveToNext());
+        if (startDate == null && endDate == null) {
+            return "SELECT * FROM " + TABLE_OUTCOMES + queryPostfix;
         }
-        cursor.close();
-        return outcomes;
+        if (startDate == null) {
+            return queryPrefix + KEY_DATE + " <= '" + endDate + "'" + queryPostfix;
+        } else if (endDate == null) {
+            return queryPrefix + KEY_DATE + "  >= '" + startDate + "'" + queryPostfix;
+        } else {
+            return queryPrefix + KEY_DATE + "  >= '" + startDate + "' AND "
+                    + KEY_DATE + " <= '" + endDate + "'" + queryPostfix;
+        }
+
+
     }
 
     public long addOutcomeCategory(String category) {

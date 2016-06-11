@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.psalata.moneysaver.R;
 import com.example.psalata.moneysaver.database.DBHelper;
@@ -20,6 +21,8 @@ import com.example.psalata.moneysaver.outcomes.Outcome;
 import com.example.psalata.moneysaver.utils.Utils;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
@@ -29,6 +32,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
 
     private TextView dateFilter;
     private RecyclerView recyclerView;
+    private CheckBox startDateCheckBox;
+    private CheckBox endDateCheckBox;
 
     private Calendar calendar = Calendar.getInstance();
     private int startYear = calendar.get(Calendar.YEAR);
@@ -50,7 +55,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         dateFilter.setOnClickListener(this);
 
         db = DBHelper.getInstance(getApplicationContext());
-        downloadDataFromDB();
+        outcomes = db.getOutcomes(null, null);
 
         RVAdapter adapter = new RVAdapter(outcomes);
         recyclerView.setAdapter(adapter);
@@ -67,34 +72,23 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         return super.onOptionsItemSelected(item);
     }
 
-    private void downloadDataFromDB() {
-        outcomes = db.getOutcomes();
-    }
+    private List<Outcome> getOutcomesFromDB(boolean startDatePickerEnabled, boolean endDatePickerEnabled) {
+        int startMonthRealNumber = startMonth + 1, endMonthRealNumber = endMonth + 1;
+        String startDate = null, endDate = null;
 
-
-
-    private void downloadOutcomesWithDateRange(boolean startDatePickerEnabled, boolean endDatePickerEnabled) {
-        String startDate, endDate;
-
-        if(startDatePickerEnabled) {
-            int startMonthRealNumber = startMonth + 1;
+        if (startDatePickerEnabled) {
             startDate = Utils.formatDateToString(startYear, startMonthRealNumber, startDay);
-        } else {
-
         }
-        if(endDatePickerEnabled) {
-            int endMonthRealNumber = endMonth + 1;
+
+        if (endDatePickerEnabled) {
             endDate = Utils.formatDateToString(endYear, endMonthRealNumber, endDay);
-        } else {
-
         }
 
-
-        outcomes = db.getOutcomesWithDateRange(startDate, endDate);
+        return db.getOutcomes(startDate, endDate);
     }
 
     private void refreshOutcomesRV(boolean startDatePickerEnabled, boolean endDatePickerEnabled) {
-        downloadOutcomesWithDateRange(startDatePickerEnabled, endDatePickerEnabled);
+        outcomes = getOutcomesFromDB(startDatePickerEnabled, endDatePickerEnabled);
 
         RVAdapter adapter = new RVAdapter(outcomes);
         recyclerView.setAdapter(adapter);
@@ -119,10 +113,6 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void checkDateRange() {
-
-    }
-
     private void showDatePicker() {
         LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
         View customView = inflater.inflate(R.layout.custom_date_picker, null);
@@ -130,11 +120,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         final DatePicker startDatePicker = (DatePicker) customView.findViewById(R.id.start_date_picker);
         final DatePicker endDatePicker = (DatePicker) customView.findViewById(R.id.end_date_picker);
 
-        startDatePicker.updateDate(startYear, startMonth, startDay);
-        endDatePicker.updateDate(endYear, endMonth, endDay);
-
-        CheckBox startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
-        final CheckBox endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
+        startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
+        endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
         startDateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -149,7 +136,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         });
 
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(customView);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -160,8 +147,12 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                 endYear = endDatePicker.getYear();
                 endMonth = endDatePicker.getMonth();
                 endDay = endDatePicker.getDayOfMonth();
-                refreshOutcomesRV(startDatePicker.isEnabled(), endDatePicker.isEnabled());
-                dialog.dismiss();
+                if(getDate(startYear, startMonth, startDay).after(getDate(endYear, endMonth, endDay))) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.invalid_date_range), Toast.LENGTH_SHORT).show();
+                } else {
+                    refreshOutcomesRV(startDatePicker.isEnabled(), endDatePicker.isEnabled());
+                    dialog.dismiss();
+                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -172,6 +163,10 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         });
 
         builder.create().show();
+    }
+
+    private Date getDate(int year, int month, int day) {
+        return new GregorianCalendar(year, month, day).getTime();
     }
 
 }
