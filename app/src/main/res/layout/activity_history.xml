@@ -17,11 +17,12 @@
                 android:text="@string/date"
                 android:onClick="onClick"/>
 
-            <TextView
+            <TextView android:id="@+id/history_amount_filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/amount"/>
+                android:text="@string/amount"
+                android:onClick="onClick"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -38,9 +39,6 @@
                 android:background="@android:color/holo_green_dark"/>
 
     </LinearLayout>
-
-
-
 
 
     <android.support.v7.widget.RecyclerView

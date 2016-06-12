@@ -14,7 +14,7 @@
     <string name="new_cateogry_added">Dodano kategorię</string>
     <string name="catggory_not_added">Podaj nazwę</string>
     <string name="amount_field_hint">Kwota</string>
-    <string name="enter_amount">Nie podano kwoty</string>
+    <string name="invalid_amount">Nie podano kwoty</string>
     <string name="add_outcome">Dodaj wydatek:</string>
     <string name="add_income">Dodaj przychód:</string>
     <string name="add_beginning_amount">Dodaj kwotę początkową:</string>

@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,9 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private CheckBox startDateCheckBox;
     private CheckBox endDateCheckBox;
 
+    private boolean startDatePickerEnabled;
+    private boolean endDatePickerEnabled;
+
     private Calendar calendar = Calendar.getInstance();
     private int startYear = calendar.get(Calendar.YEAR);
     private int startMonth = calendar.get(Calendar.MONTH);
@@ -42,6 +46,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private int endYear = calendar.get(Calendar.YEAR);
     private int endMonth = calendar.get(Calendar.MONTH);
     private int endDay = calendar.get(Calendar.DAY_OF_MONTH);
+    private double filterAmount = 0;
 
 
     @Override
@@ -72,7 +77,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         return super.onOptionsItemSelected(item);
     }
 
-    private List<Outcome> getOutcomesFromDB(boolean startDatePickerEnabled, boolean endDatePickerEnabled) {
+    private List<Outcome> getOutcomesFromDB() {
         int startMonthRealNumber = startMonth + 1, endMonthRealNumber = endMonth + 1;
         String startDate = null, endDate = null;
 
@@ -87,8 +92,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         return db.getOutcomes(startDate, endDate);
     }
 
-    private void refreshOutcomesRV(boolean startDatePickerEnabled, boolean endDatePickerEnabled) {
-        outcomes = getOutcomesFromDB(startDatePickerEnabled, endDatePickerEnabled);
+    private void refreshOutcomesRV() {
+        outcomes = getOutcomesFromDB();
 
         RVAdapter adapter = new RVAdapter(outcomes);
         recyclerView.setAdapter(adapter);
@@ -100,6 +105,10 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.history_date_filter:
                 showDatePicker();
                 break;
+            case R.id.history_amount_filter:
+                showAmountPicker();
+                break;
+
         }
     }
 
@@ -129,12 +138,14 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 startDatePicker.setEnabled(isChecked);
+                startDatePickerEnabled = isChecked;
             }
         });
         endDateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 endDatePicker.setEnabled(isChecked);
+                endDatePickerEnabled = isChecked;
             }
         });
 
@@ -168,7 +179,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                 if(getDate(startYear, startMonth, startDay).after(getDate(endYear, endMonth, endDay))) {
                     Toast.makeText(getApplicationContext(), getString(R.string.invalid_date_range), Toast.LENGTH_SHORT).show();
                 } else {
-                    refreshOutcomesRV(startDatePicker.isEnabled(), endDatePicker.isEnabled());
+                    refreshOutcomesRV();
                     dialog.dismiss();
                 }
             }
@@ -179,11 +190,54 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         return new GregorianCalendar(year, month, day).getTime();
     }
 
-    private boolean isDateRangeIncorrect(int startYear, int startMonth, int startDay,
-                                       int endYear, int endMonth, int endDay) {
-        return getDate(startYear, startMonth, startDay).after(getDate(endYear, endMonth, endDay));
-    }
+    private void showAmountPicker() {
+        LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
+        View customView = inflater.inflate(R.layout.custom_amount_picker, null);
 
+        final TextView inequalitySign = (TextView) customView.findViewById(R.id.inequality_sign_text_view);
+        inequalitySign.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                inequalitySign.setRotation(inequalitySign.getRotation() + 180);
+            }
+        });
+
+        final EditText amount = (EditText) customView.findViewById(R.id.history_amount_filter_field);
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(customView);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String stringAmount = amount.getText().toString();
+                filterAmount = Double.parseDouble(stringAmount);
+                if(stringAmount.equals("") || (filterAmount < 0.01)) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.invalid_amount), Toast.LENGTH_SHORT).show();
+                } else {
+                    refreshOutcomesRV();
+                    dialog.dismiss();
+                }
+            }
+        });
+
+
+    }
 
 
 }

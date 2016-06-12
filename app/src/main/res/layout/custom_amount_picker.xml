@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="@string/amount"
+        android:textSize="40sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        />
+
+    <TextView android:id="@+id/inequality_sign_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=">"
+        android:textSize="40sp"
+        android:layout_margin="15dp"/>
+
+    <EditText android:id="@+id/history_amount_filter_field"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="40sp"
+        android:inputType="numberDecimal"
+        android:background="@drawable/back_with_borders"/>
+
+</LinearLayout>

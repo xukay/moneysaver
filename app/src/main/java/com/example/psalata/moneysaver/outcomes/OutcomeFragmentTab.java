@@ -21,15 +21,12 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.psalata.moneysaver.MainActivity;
 import com.example.psalata.moneysaver.R;
 import com.example.psalata.moneysaver.database.DBHelper;
 import com.example.psalata.moneysaver.history.HistoryActivity;
 import com.example.psalata.moneysaver.utils.Utils;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -153,7 +150,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
                     getActivity().getString(R.string.choose_category), Toast.LENGTH_SHORT).show();
         } else if(stringAmount.equals("") || (Double.parseDouble(stringAmount) < 0.01)) {
             Toast.makeText(getContext(),
-                    getActivity().getString(R.string.enter_amount), Toast.LENGTH_SHORT).show();
+                    getActivity().getString(R.string.invalid_amount), Toast.LENGTH_SHORT).show();
         } else {
             BigDecimal amount = new BigDecimal(stringAmount);
             String date = Utils.getCurrentDate();

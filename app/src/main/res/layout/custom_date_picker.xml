@@ -19,16 +19,9 @@
             <CheckBox android:id="@+id/start_date_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="@string/start_date"
-                android:layout_alignBaseline="@id/start_date_checkbox"
-                android:layout_toRightOf="@id/start_date_checkbox"
-                android:layout_toEndOf="@id/start_date_checkbox"
-                android:layout_marginBottom="15dp"
+                android:layout_marginBottom="8dp"
                 android:textSize="20sp"/>
 
         </RelativeLayout>
@@ -58,17 +51,12 @@
             <CheckBox android:id="@+id/end_date_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/end_date_checkbox"
-                android:layout_toRightOf="@id/end_date_checkbox"
-                android:layout_toEndOf="@id/end_date_checkbox"
+                android:checked="true"
                 android:text="@string/end_date"
-                android:layout_marginBottom="15dp"
+                android:layout_marginBottom="8dp"
                 android:textSize="20sp"/>
+
+
 
         </RelativeLayout>
 
