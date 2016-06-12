@@ -120,6 +120,9 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         final DatePicker startDatePicker = (DatePicker) customView.findViewById(R.id.start_date_picker);
         final DatePicker endDatePicker = (DatePicker) customView.findViewById(R.id.end_date_picker);
 
+        startDatePicker.updateDate(startYear, startMonth, startDay);
+        endDatePicker.updateDate(endYear, endMonth, endDay);
+
         startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
         endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
         startDateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -135,12 +138,27 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(customView);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 startYear = startDatePicker.getYear();
                 startMonth = startDatePicker.getMonth();
                 startDay = startDatePicker.getDayOfMonth();
@@ -155,18 +173,17 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.create().show();
     }
 
     private Date getDate(int year, int month, int day) {
         return new GregorianCalendar(year, month, day).getTime();
     }
+
+    private boolean isDateRangeIncorrect(int startYear, int startMonth, int startDay,
+                                       int endYear, int endMonth, int endDay) {
+        return getDate(startYear, startMonth, startDay).after(getDate(endYear, endMonth, endDay));
+    }
+
+
 
 }
