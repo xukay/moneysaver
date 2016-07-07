@@ -74,7 +74,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.outcome_button:
-                addNormalOutcome();
+                addOutcome();
                 break;
             case R.id.history_button:
                 Intent intent = new Intent(getActivity(), HistoryActivity.class);
@@ -105,7 +105,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
                             Toast.makeText(getContext(),
                                     getResources().getString(R.string.new_cateogry_added),
                                     Toast.LENGTH_SHORT).show();
-                            db.addOutcomeCategory(category);
+                            db.insertOutcomeCategory(category);
                             categorySpinner.setAdapter(createSpinnerWithCategories());
                             dialog.dismiss();
                         } else {
@@ -136,7 +136,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
         return dataAdapter;
     }
 
-    private void addNormalOutcome() {
+    private void addOutcome() {
         View view = getActivity().getCurrentFocus();
         if(view != null) {
             InputMethodManager inputManager = (InputMethodManager)getActivity().
@@ -155,7 +155,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
             BigDecimal amount = new BigDecimal(stringAmount);
             String date = Utils.getCurrentDate();
 
-            db.addOutcome(new Outcome(amount, date, category));
+            db.insertOutcome(new Outcome(amount, date, category));
 
             outcomeEditText.getText().clear();
             amountRemainingTextView.setText(db.getAmountRemainingAsString());

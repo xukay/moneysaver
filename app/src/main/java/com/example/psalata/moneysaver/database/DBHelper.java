@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 
 import com.example.psalata.moneysaver.MainActivity;
 import com.example.psalata.moneysaver.outcomes.Outcome;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Paweł on 07.02.2016.
@@ -133,7 +135,7 @@ public class DBHelper extends SQLiteOpenHelper{
         return null;
     }
 
-    public long addOutcome(Outcome outcome) {
+    public long insertOutcome(Outcome outcome) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -145,10 +147,10 @@ public class DBHelper extends SQLiteOpenHelper{
         return db.insert(TABLE_OUTCOMES, null, values);
     }
 
-    public List<Outcome> getOutcomes(String startDate, String endDate) {
+    public List<Outcome> getOutcomes(String startDate, String endDate, List<String> enabledCategories) {
 
         List<Outcome> outcomes = new ArrayList<>();
-        String selectQuery = getQueryForOutcomes(startDate, endDate);
+        String selectQuery = getQueryForOutcomes(startDate, endDate, enabledCategories);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -167,26 +169,51 @@ public class DBHelper extends SQLiteOpenHelper{
         return outcomes;
     }
 
-    private String getQueryForOutcomes(String startDate, String endDate) {
-        final String queryPrefix = "SELECT * FROM " + TABLE_OUTCOMES + " WHERE ";
+    private String getQueryForOutcomes(String startDate, String endDate, List<String> enabledCategories) {
+        final String queryPrefix = "SELECT * FROM " + TABLE_OUTCOMES;
         final String queryPostfix = " ORDER BY " + KEY_DATE + " DESC";
 
-        if (startDate == null && endDate == null) {
-            return "SELECT * FROM " + TABLE_OUTCOMES + queryPostfix;
-        }
-        if (startDate == null) {
-            return queryPrefix + KEY_DATE + " <= '" + endDate + "'" + queryPostfix;
-        } else if (endDate == null) {
-            return queryPrefix + KEY_DATE + "  >= '" + startDate + "'" + queryPostfix;
-        } else {
-            return queryPrefix + KEY_DATE + "  >= '" + startDate + "' AND "
-                    + KEY_DATE + " <= '" + endDate + "'" + queryPostfix;
+        StringBuilder finalQuery = new StringBuilder();
+        finalQuery.append(queryPrefix);
+
+        boolean areDateRangesSet = startDate != null || endDate != null;
+        if(areDateRangesSet) {
+            String dateQueryPart = "";
+            if (startDate == null) {
+                dateQueryPart = " WHERE " + KEY_DATE + " <= '" + endDate + "'";
+            } else if (endDate == null) {
+                dateQueryPart = " WHERE " + KEY_DATE + "  >= '" + startDate + "'";
+            } else {
+                dateQueryPart = " WHERE " + KEY_DATE + "  >= '" + startDate + "' AND "
+                        + KEY_DATE + " <= '" + endDate + "'";
+            }
+            finalQuery.append(dateQueryPart);
         }
 
+        if(enabledCategories != null && !enabledCategories.isEmpty()) {
+            StringBuilder categoriesQueryPart = new StringBuilder();
+            if(areDateRangesSet) {
+                categoriesQueryPart.append(" AND (");
+            } else {
+                categoriesQueryPart.append(" WHERE (");
+            }
+            for (String category : enabledCategories) {
+                if( !category.equals(enabledCategories.get(0))) {
+                    categoriesQueryPart.append(" OR ");
+                }
+                categoriesQueryPart.append(KEY_CATEGORY + " = '" + category + "'");
+            }
 
+            categoriesQueryPart.append(")");
+            finalQuery.append(categoriesQueryPart);
+        }
+
+        finalQuery.append(queryPostfix);
+        Log.d("DBQUERY: ", finalQuery.toString());
+        return finalQuery.toString();
     }
 
-    public long addOutcomeCategory(String category) {
+    public long insertOutcomeCategory(String category) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();

@@ -9,10 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,20 +24,20 @@ import com.example.psalata.moneysaver.database.DBHelper;
 import com.example.psalata.moneysaver.outcomes.Outcome;
 import com.example.psalata.moneysaver.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private List<Outcome> outcomes;
     private DBHelper db;
 
-    private TextView dateFilter;
     private RecyclerView recyclerView;
-    private CheckBox startDateCheckBox;
-    private CheckBox endDateCheckBox;
 
     private boolean startDatePickerEnabled;
     private boolean endDatePickerEnabled;
@@ -46,21 +49,30 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private int endYear = calendar.get(Calendar.YEAR);
     private int endMonth = calendar.get(Calendar.MONTH);
     private int endDay = calendar.get(Calendar.DAY_OF_MONTH);
-    private double filterAmount = 0;
+
+    private Map<String, Boolean> categoriesFilter = new HashMap<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        recyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.history_list_of_outcomes);
         LinearLayoutManager llm = new LinearLayoutManager(getBaseContext());
         recyclerView.setLayoutManager(llm);
-        dateFilter = (TextView) findViewById(R.id.history_date_filter);
+        TextView dateFilter = (TextView) findViewById(R.id.open_date_picker_button);
         dateFilter.setOnClickListener(this);
 
+        TextView categoryFilterButton = (TextView) findViewById(R.id.open_category_picker_button);
+        categoryFilterButton.setOnClickListener(this);
+
         db = DBHelper.getInstance(getApplicationContext());
-        outcomes = db.getOutcomes(null, null);
+        outcomes = db.getOutcomes(null, null, null);
+        List<String> categories = db.getOutcomeCategories();
+
+        for(String category : categories) {
+            categoriesFilter.put(category, true);
+        }
 
         RVAdapter adapter = new RVAdapter(outcomes);
         recyclerView.setAdapter(adapter);
@@ -80,6 +92,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private List<Outcome> getOutcomesFromDB() {
         int startMonthRealNumber = startMonth + 1, endMonthRealNumber = endMonth + 1;
         String startDate = null, endDate = null;
+        List<String> enabledCategories = new ArrayList<>();
 
         if (startDatePickerEnabled) {
             startDate = Utils.formatDateToString(startYear, startMonthRealNumber, startDay);
@@ -89,7 +102,13 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             endDate = Utils.formatDateToString(endYear, endMonthRealNumber, endDay);
         }
 
-        return db.getOutcomes(startDate, endDate);
+        for (Map.Entry<String, Boolean> entry : categoriesFilter.entrySet()) {
+            if(entry.getValue()) { //if category is enabled
+                enabledCategories.add(entry.getKey());
+            }
+        }
+
+        return db.getOutcomes(startDate, endDate, enabledCategories);
     }
 
     private void refreshOutcomesRV() {
@@ -102,11 +121,11 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.history_date_filter:
+            case R.id.open_date_picker_button:
                 showDatePicker();
                 break;
-            case R.id.history_amount_filter:
-                showAmountPicker();
+            case R.id.open_category_picker_button:
+                showCategoryPicker();
                 break;
 
         }
@@ -132,8 +151,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         startDatePicker.updateDate(startYear, startMonth, startDay);
         endDatePicker.updateDate(endYear, endMonth, endDay);
 
-        startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
-        endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
+        CheckBox startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
+        CheckBox endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
         startDateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -190,26 +209,29 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         return new GregorianCalendar(year, month, day).getTime();
     }
 
-    private void showAmountPicker() {
+    private void showCategoryPicker() {
         LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
-        View customView = inflater.inflate(R.layout.custom_amount_picker, null);
+        View customView = inflater.inflate(R.layout.category_picker, null);
 
-        final TextView inequalitySign = (TextView) customView.findViewById(R.id.inequality_sign_text_view);
-        inequalitySign.setOnClickListener(new View.OnClickListener() {
+        final ListView categories = (ListView) customView.findViewById(R.id.history_filter_categories_list);
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(this, R.layout.category_checkbox_item, db.getOutcomeCategories());
+        categories.setAdapter(adapter);
+        categories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                inequalitySign.setRotation(inequalitySign.getRotation() + 180);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                View v = categories.getChildAt(position);
+                CheckedTextView checkedTextView = (CheckedTextView) v.findViewById(R.id.category_checkedtextview);
+                checkedTextView.setChecked( !checkedTextView.isChecked());
+                categoriesFilter.put(checkedTextView.getText().toString(), checkedTextView.isChecked());
             }
         });
-
-        final EditText amount = (EditText) customView.findViewById(R.id.history_amount_filter_field);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(customView);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -225,19 +247,11 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String stringAmount = amount.getText().toString();
-                filterAmount = Double.parseDouble(stringAmount);
-                if(stringAmount.equals("") || (filterAmount < 0.01)) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.invalid_amount), Toast.LENGTH_SHORT).show();
-                } else {
                     refreshOutcomesRV();
                     dialog.dismiss();
-                }
             }
         });
-
-
     }
 
-
 }
+

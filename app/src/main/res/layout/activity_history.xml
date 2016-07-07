@@ -10,24 +10,27 @@
         android:padding="10dp"
         android:orientation="horizontal">
 
-            <TextView android:id="@+id/history_date_filter"
+            <TextView android:id="@+id/open_date_picker_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/date"
-                android:onClick="onClick"/>
-
-            <TextView android:id="@+id/history_amount_filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/amount"
-                android:onClick="onClick"/>
+                android:clickable="true"
+                android:onClick="onClick"
+                android:background="@android:color/holo_orange_dark"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:text="@string/amount"/>
+
+            <TextView android:id="@+id/open_category_picker_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:onClick="onClick"
                 android:text="@string/category"/>
 
 
@@ -42,7 +45,7 @@
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/history_recycler_view"
+        android:id="@+id/history_list_of_outcomes"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/holo_blue_bright">
