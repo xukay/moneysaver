@@ -6,16 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 
-import com.example.psalata.moneysaver.MainActivity;
+import com.example.psalata.moneysaver.history.CategoriesFilter;
+import com.example.psalata.moneysaver.history.date.DateRangesFilter;
 import com.example.psalata.moneysaver.outcomes.Outcome;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Paweł on 07.02.2016.
@@ -49,10 +47,10 @@ public class DBHelper extends SQLiteOpenHelper{
     private static final String TABLE_CATEGORIES_INCOMES = "categories_incomes";
 
     //main column names
-    private static final String KEY_ID = "id";
-    private static final String KEY_AMOUNT = "amount";
-    private static final String KEY_DATE = "date";
-    private static final String KEY_CATEGORY = "category";
+    public static final String KEY_ID = "id";
+    public static final String KEY_AMOUNT = "amount";
+    public static final String KEY_DATE = "date";
+    public static final String KEY_CATEGORY = "category";
 
     //categories column names
     private static final String KEY_CATEGORY_NAME = "category_name";
@@ -147,10 +145,10 @@ public class DBHelper extends SQLiteOpenHelper{
         return db.insert(TABLE_OUTCOMES, null, values);
     }
 
-    public List<Outcome> getOutcomes(String startDate, String endDate, List<String> enabledCategories) {
+    public List<Outcome> getOutcomes(DateRangesFilter dateRangesFilter, CategoriesFilter categoriesFilter) {
 
         List<Outcome> outcomes = new ArrayList<>();
-        String selectQuery = getQueryForOutcomes(startDate, endDate, enabledCategories);
+        String selectQuery = getQueryForOutcomes(dateRangesFilter, categoriesFilter);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -169,46 +167,25 @@ public class DBHelper extends SQLiteOpenHelper{
         return outcomes;
     }
 
-    private String getQueryForOutcomes(String startDate, String endDate, List<String> enabledCategories) {
-        final String queryPrefix = "SELECT * FROM " + TABLE_OUTCOMES;
-        final String queryPostfix = " ORDER BY " + KEY_DATE + " DESC";
+    private String getQueryForOutcomes(DateRangesFilter dateRangesFilter, CategoriesFilter categoriesFilter) {
+        final String queryBegin = "SELECT * FROM " + TABLE_OUTCOMES;
+        final String queryEnd = " ORDER BY " + KEY_DATE + " DESC";
 
         StringBuilder finalQuery = new StringBuilder();
-        finalQuery.append(queryPrefix);
+        finalQuery.append(queryBegin);
 
-        boolean areDateRangesSet = startDate != null || endDate != null;
-        if(areDateRangesSet) {
-            String dateQueryPart = "";
-            if (startDate == null) {
-                dateQueryPart = " WHERE " + KEY_DATE + " <= '" + endDate + "'";
-            } else if (endDate == null) {
-                dateQueryPart = " WHERE " + KEY_DATE + "  >= '" + startDate + "'";
+        finalQuery.append(dateRangesFilter.getDBQueryPart());
+
+        if (!categoriesFilter.isEmpty()) {
+            if (dateRangesFilter.areAnyEnabled()) {
+                finalQuery.append(" AND (");
             } else {
-                dateQueryPart = " WHERE " + KEY_DATE + "  >= '" + startDate + "' AND "
-                        + KEY_DATE + " <= '" + endDate + "'";
+                finalQuery.append(" WHERE (");
             }
-            finalQuery.append(dateQueryPart);
+            finalQuery.append(categoriesFilter.getDBQueryPart());
         }
 
-        if(enabledCategories != null && !enabledCategories.isEmpty()) {
-            StringBuilder categoriesQueryPart = new StringBuilder();
-            if(areDateRangesSet) {
-                categoriesQueryPart.append(" AND (");
-            } else {
-                categoriesQueryPart.append(" WHERE (");
-            }
-            for (String category : enabledCategories) {
-                if( !category.equals(enabledCategories.get(0))) {
-                    categoriesQueryPart.append(" OR ");
-                }
-                categoriesQueryPart.append(KEY_CATEGORY + " = '" + category + "'");
-            }
-
-            categoriesQueryPart.append(")");
-            finalQuery.append(categoriesQueryPart);
-        }
-
-        finalQuery.append(queryPostfix);
+        finalQuery.append(queryEnd);
         Log.d("DBQUERY: ", finalQuery.toString());
         return finalQuery.toString();
     }

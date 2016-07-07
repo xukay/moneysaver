@@ -2,6 +2,7 @@ package com.example.psalata.moneysaver.history;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,23 +15,18 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.psalata.moneysaver.R;
 import com.example.psalata.moneysaver.database.DBHelper;
+import com.example.psalata.moneysaver.history.date.CustomDatePicker;
+import com.example.psalata.moneysaver.history.date.DateRangesFilter;
 import com.example.psalata.moneysaver.outcomes.Outcome;
-import com.example.psalata.moneysaver.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -39,19 +35,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
 
     private RecyclerView recyclerView;
 
-    private boolean startDatePickerEnabled;
-    private boolean endDatePickerEnabled;
-
-    private Calendar calendar = Calendar.getInstance();
-    private int startYear = calendar.get(Calendar.YEAR);
-    private int startMonth = calendar.get(Calendar.MONTH);
-    private int startDay = calendar.get(Calendar.DAY_OF_MONTH);
-    private int endYear = calendar.get(Calendar.YEAR);
-    private int endMonth = calendar.get(Calendar.MONTH);
-    private int endDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-    private Map<String, Boolean> categoriesFilter = new HashMap<>();
-
+    private DateRangesFilter dateRangesFilter = new DateRangesFilter();
+    private CategoriesFilter categoriesFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,24 +45,16 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         recyclerView = (RecyclerView) findViewById(R.id.history_list_of_outcomes);
         LinearLayoutManager llm = new LinearLayoutManager(getBaseContext());
         recyclerView.setLayoutManager(llm);
-        TextView dateFilter = (TextView) findViewById(R.id.open_date_picker_button);
-        dateFilter.setOnClickListener(this);
 
-        TextView categoryFilterButton = (TextView) findViewById(R.id.open_category_picker_button);
-        categoryFilterButton.setOnClickListener(this);
+        TextView dateRangesFilterButton = (TextView) findViewById(R.id.open_date_picker_button);
+        dateRangesFilterButton.setOnClickListener(this);
+        TextView categoriesFilterButton = (TextView) findViewById(R.id.open_category_picker_button);
+        categoriesFilterButton.setOnClickListener(this);
 
         db = DBHelper.getInstance(getApplicationContext());
-        outcomes = db.getOutcomes(null, null, null);
-        List<String> categories = db.getOutcomeCategories();
+        categoriesFilter = new CategoriesFilter(db.getOutcomeCategories());
 
-        for(String category : categories) {
-            categoriesFilter.put(category, true);
-        }
-
-        RVAdapter adapter = new RVAdapter(outcomes);
-        recyclerView.setAdapter(adapter);
-
-        setStartDateAMonthBack();
+        fillOutcomesRV();
     }
 
     @Override
@@ -89,35 +66,12 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         return super.onOptionsItemSelected(item);
     }
 
-    private List<Outcome> getOutcomesFromDB() {
-        int startMonthRealNumber = startMonth + 1, endMonthRealNumber = endMonth + 1;
-        String startDate = null, endDate = null;
-        List<String> enabledCategories = new ArrayList<>();
-
-        if (startDatePickerEnabled) {
-            startDate = Utils.formatDateToString(startYear, startMonthRealNumber, startDay);
-        }
-
-        if (endDatePickerEnabled) {
-            endDate = Utils.formatDateToString(endYear, endMonthRealNumber, endDay);
-        }
-
-        for (Map.Entry<String, Boolean> entry : categoriesFilter.entrySet()) {
-            if(entry.getValue()) { //if category is enabled
-                enabledCategories.add(entry.getKey());
-            }
-        }
-
-        return db.getOutcomes(startDate, endDate, enabledCategories);
-    }
-
-    private void refreshOutcomesRV() {
-        outcomes = getOutcomesFromDB();
-
+    private void fillOutcomesRV() {
+        outcomes = db.getOutcomes(dateRangesFilter, categoriesFilter);
         RVAdapter adapter = new RVAdapter(outcomes);
         recyclerView.setAdapter(adapter);
-
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -127,46 +81,24 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.open_category_picker_button:
                 showCategoryPicker();
                 break;
-
-        }
-    }
-
-
-    private void setStartDateAMonthBack() {
-        if(startMonth != 1) {
-            startMonth -= 1;
-        } else {
-            startMonth = 12;
-            startYear -= 1;
         }
     }
 
     private void showDatePicker() {
         LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
-        View customView = inflater.inflate(R.layout.custom_date_picker, null);
+        View customView = inflater.inflate(R.layout.date_ranges_picker, null);
 
-        final DatePicker startDatePicker = (DatePicker) customView.findViewById(R.id.start_date_picker);
-        final DatePicker endDatePicker = (DatePicker) customView.findViewById(R.id.end_date_picker);
+        final CustomDatePicker startDatePicker = (CustomDatePicker) customView.findViewById(R.id.start_date_picker);
+        final CustomDatePicker endDatePicker = (CustomDatePicker) customView.findViewById(R.id.end_date_picker);
+        startDatePicker.updateDate(dateRangesFilter.getStartDate());
+        startDatePicker.setEnabled(dateRangesFilter.getStartDate().isEnabled());
+        endDatePicker.updateDate(dateRangesFilter.getEndDate());
+        endDatePicker.setEnabled(dateRangesFilter.getEndDate().isEnabled());
 
-        startDatePicker.updateDate(startYear, startMonth, startDay);
-        endDatePicker.updateDate(endYear, endMonth, endDay);
-
-        CheckBox startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
-        CheckBox endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
-        startDateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                startDatePicker.setEnabled(isChecked);
-                startDatePickerEnabled = isChecked;
-            }
-        });
-        endDateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                endDatePicker.setEnabled(isChecked);
-                endDatePickerEnabled = isChecked;
-            }
-        });
+        final CheckBox startDateCheckBox = (CheckBox) customView.findViewById(R.id.start_date_checkbox);
+        final CheckBox endDateCheckBox = (CheckBox) customView.findViewById(R.id.end_date_checkbox);
+        setCheckboxListener(startDateCheckBox, startDatePicker);
+        setCheckboxListener(endDateCheckBox, endDatePicker);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(customView);
@@ -189,24 +121,24 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startYear = startDatePicker.getYear();
-                startMonth = startDatePicker.getMonth();
-                startDay = startDatePicker.getDayOfMonth();
-                endYear = endDatePicker.getYear();
-                endMonth = endDatePicker.getMonth();
-                endDay = endDatePicker.getDayOfMonth();
-                if(getDate(startYear, startMonth, startDay).after(getDate(endYear, endMonth, endDay))) {
+                dateRangesFilter.setDateRanges(startDatePicker.getDateRange(), endDatePicker.getDateRange());
+                if(!dateRangesFilter.isStartDateBeforeOrEqualEndDate()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.invalid_date_range), Toast.LENGTH_SHORT).show();
                 } else {
-                    refreshOutcomesRV();
+                    fillOutcomesRV();
                     dialog.dismiss();
                 }
             }
         });
     }
 
-    private Date getDate(int year, int month, int day) {
-        return new GregorianCalendar(year, month, day).getTime();
+    private void setCheckboxListener(CheckBox checkBox, final CustomDatePicker datePicker) {
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                datePicker.setEnabled(isChecked);
+            }
+        });
     }
 
     private void showCategoryPicker() {
@@ -214,18 +146,26 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         View customView = inflater.inflate(R.layout.category_picker, null);
 
         final ListView categories = (ListView) customView.findViewById(R.id.history_filter_categories_list);
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(this, R.layout.category_checkbox_item, db.getOutcomeCategories());
+        CheckedTextViewAdapter adapter =
+                new CheckedTextViewAdapter(this, categoriesFilter.getCategoriesMap());
         categories.setAdapter(adapter);
-        categories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                View v = categories.getChildAt(position);
-                CheckedTextView checkedTextView = (CheckedTextView) v.findViewById(R.id.category_checkedtextview);
-                checkedTextView.setChecked( !checkedTextView.isChecked());
-                categoriesFilter.put(checkedTextView.getText().toString(), checkedTextView.isChecked());
-            }
-        });
+//        categories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                View v = categories.getChildAt(position);
+//                CheckedTextView checkedTextView = (CheckedTextView) v.findViewById(R.id.category_checkedtextview);
+//                String categoryName = checkedTextView.getText().toString();
+//                if (checkedTextView.isChecked()) {
+//                    checkedTextView.setChecked(false);
+//                    checkedTextView.setCheckMarkDrawable(android.R.drawable.checkbox_off_background);
+//                    categoriesFilter.put(categoryName, false);
+//                } else {
+//                    checkedTextView.setChecked(true);
+//                    checkedTextView.setCheckMarkDrawable(android.R.drawable.checkbox_on_background);
+//                    categoriesFilter.put(categoryName, true);
+//                }
+//            }
+//        });
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(customView);
@@ -247,7 +187,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    refreshOutcomesRV();
+                    fillOutcomesRV();
                     dialog.dismiss();
             }
         });

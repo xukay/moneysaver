@@ -17,7 +17,7 @@ public class Utils {
     public final static String displayDateFormat = "dd-MM-yyyy";
     public final static String databaseDateFormat = "yyyy-MM-dd";
 
-    public static String getCurrentDate(){
+    public static String getCurrentDateAsString(){
         return new SimpleDateFormat(databaseDateFormat, Locale.getDefault()).format(new Date());
     }
 

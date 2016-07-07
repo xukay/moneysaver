@@ -153,7 +153,7 @@ public class OutcomeFragmentTab extends Fragment implements View.OnClickListener
                     getActivity().getString(R.string.invalid_amount), Toast.LENGTH_SHORT).show();
         } else {
             BigDecimal amount = new BigDecimal(stringAmount);
-            String date = Utils.getCurrentDate();
+            String date = Utils.getCurrentDateAsString();
 
             db.insertOutcome(new Outcome(amount, date, category));
 
